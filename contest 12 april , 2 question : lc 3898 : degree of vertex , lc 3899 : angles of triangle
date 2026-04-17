@@ -1,0 +1,36 @@
+vector<int> findDegrees(vector<vector<int>>& matrix) {
+        int n = matrix.size();
+        vector<int> ans(n,0);
+
+        for(int i = 0 ; i<n ; i++){
+            int degree = 0 ;
+            for(int j = 0 ; j<n ; j++){
+                if(matrix[i][j] == 1){
+                    degree++;
+                }
+            }
+            ans[i] = degree;
+        }
+        return ans;
+    }
+
+----------------------------------------------------------------------------------------------------------------
+
+  vector<double> internalAngles(vector<int>& sides) {
+        int a = sides[0] , b = sides[1] , c= sides[2];
+        if(a+b <= c || a+c <= b || b+c <=a){
+            return {};
+        }
+        auto angle = [&](int x , int y , int z){
+            double cosval = (pow(y,2) + pow(z,2) - pow(x,2)) / (2.0*y*z);
+            return acos(cosval)*180.0/M_PI;
+        };
+        vector<double> ans = {
+            angle(a,b,c),
+            angle(b,a,c),
+            angle(c,a,b)
+        };
+        sort(ans.begin(),ans.end());
+        return ans;
+        
+    }
