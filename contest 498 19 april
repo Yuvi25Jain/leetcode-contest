@@ -1,0 +1,18 @@
+here 
+
+q1 and q2 is same = smallest stable index (stable <= k (given in input))
+
+approach:
+
+1. brute force : find max element from 0 to i and min from i to n-1. o(n2)
+  2. optimised : use prefix max and suffix min o(n)
+
+learning : new cpp syntax to find max and min element from array for brute force => *max_element(a.begin(), a.begin()+i+1) ; and same for min element
+
+-----------------------
+
+q4 : dfs : kinda grid movement 
+
+90/530 test cases got solve (public) .
+
+-----------------------------------------------------------------------------
