@@ -1,0 +1,437 @@
+q1. check adjacency dgit difference.
+
+problem: given string s number check the absolute diff which should be atmost 2 means 0 , 1, 2 is allowed... if consecutive digits have difference of atmost true then return true else return false
+
+🔎 What You Initially Thought
+Tried to see if two‑pointer or sliding window applies.
+
+Got confused because string ≠ array of strings.
+
+Considered using a flag variable and breaking on violation.
+
+Thought sliding window might help (like maintaining sums), but realized it gives wrong results.
+
+👉 Mistake: Overcomplicating with sliding window/two‑pointer when the problem is local adjacency only.
+
+✅ Correct Way to Think
+Pattern recognition:
+
+Only neighbors matter → no need for sliding window.
+
+Two‑pointer is unnecessary because we’re not comparing ranges.
+
+Just a single linear scan.
+
+Algorithm:
+
+Loop from i=1 to n-1.
+
+Compute abs(s[i] - s[i-1]).
+
+If any > 2 → return false.
+
+Else return true.
+
+Complexity:
+
+Time: O(n).
+
+Space: O(1).
+
+Code
+
+class Solution {
+public:
+    bool isAdjacentDiffAtMostTwo(string s) {
+        for (int i = 1; i < s.size(); i++) {
+            int diff = abs((s[i] - '0') - (s[i-1] - '0'));
+            if (diff > 2) return false;
+        }
+        return true;
+    }
+};
+📊 Dry Run Example
+s = "132"
+
+|1-3| = 2 → ok
+
+|3-2| = 1 → ok
+✅ return true
+
+s = "129"
+
+|1-2| = 1 → ok
+
+|2-9| = 7 → violation → return false
+
+🧩 Memory Hook
+👉 “Neighbor gap ≤ 2 → safe string.”  
+That’s the quick recall line.
+
+🚀 Interview Checklist
+Start with brute force idea: “Check each pair.”
+
+Explain why sliding window/two‑pointer isn’t needed: adjacency only.
+
+Show linear scan solution.
+
+Mention complexity.
+
+Edge cases: string length 1 (always true), very large string (still O(n)).
+
+❌ Mistakes to Avoid
+Don’t force sliding window/two‑pointer when only neighbors matter.
+
+Don’t forget to convert char → int (s[i] - '0').
+
+Don’t miss edge cases like single‑digit strings.
+
+Don’t skip explaining why you rejected other patterns — interviewers want to see reasoning.
+
+
+---------------------------------------------------------------------------------------------------------------------
+
+q2. count kth root in a range
+
+🧩 Problem Essence
+Input: integers L, R, k.
+
+Task: count how many integers 
+𝑦
+ exist such that 
+𝑦
+𝑘
+ lies in the range [L, R].
+
+Example: L=0, R=26, k=2 → squares are {0,1,4,9,16,25} → count=6.
+
+🔎 What You Initially Thought
+You saw ranges and thought of two‑pointer/sliding window.
+
+You realized it’s sorted, so binary search might apply.
+
+You got confused in code: missed including 0, mis‑updated bounds, and overflow handling.
+
+Mistake: Overcomplicating with sliding window, and missing edge cases like L=0.
+
+✅ Correct Way to Think
+Brute force baseline:
+
+Loop through [L,R], check if each is a perfect k‑th power.
+
+Too slow for large ranges.
+
+Observation:
+
+k‑th powers are strictly increasing (1^k, 2^k, 3^k…).
+
+So we only need to find bounds.
+
+Binary search optimization:
+
+Find smallest y such that 
+𝑦
+𝑘
+≥
+𝐿
+.
+
+Find largest y such that 
+𝑦
+𝑘
+≤
+𝑅
+.
+
+Answer = right − left + 1.
+
+Edge cases:
+
+Include 0 if L=0 (since 0^k=0 is valid).
+
+Handle overflow when computing y^k.
+
+k=1 → every number in [L,R] is valid.
+Code 
+class Solution {
+public:
+    int countKthRoots(int L, int R, int k) {
+        auto kthPower = [&](int x) {
+            long long res = 1;
+            for(int i = 0; i < k; i++) {
+                res *= x;
+                if(res > R) return (long long)R+1; // overflow guard
+            }
+            return res;
+        };
+
+        // lower bound
+        int lo = 0, hi = R, left = -1;
+        while(lo <= hi) {
+            int mid = lo + (hi - lo)/2;
+            if(kthPower(mid) >= L) {
+                left = mid;
+                hi = mid - 1;
+            } else lo = mid + 1;
+        }
+
+        // upper bound
+        lo = 0, hi = R;
+        int right = -1;
+        while(lo <= hi) {
+            int mid = lo + (hi - lo)/2;
+            if(kthPower(mid) <= R) {
+                right = mid;
+                lo = mid + 1;
+            } else hi = mid - 1;
+        }
+
+        if(left == -1 || right == -1 || left > right) return 0;
+        return right - left + 1;
+    }
+};
+📊 Dry Run Example (L=0, R=26, k=2)
+Lower bound → left=0.
+
+Upper bound → right=5.
+
+Count = 5−0+1 = 6. ✅
+
+🧩 Memory Hook
+👉 “Binary search clamps the roots: first ≥ L, last ≤ R.”
+
+🚀 Interview Checklist
+Start with brute force → show correctness.
+
+Spot inefficiency → motivate binary search.
+
+Explain sorted property of k‑th powers.
+
+Show binary search for bounds.
+
+Mention edge cases (0, overflow, k=1).
+
+Dry run one example to prove correctness.
+
+❌ Mistakes to Avoid
+Don’t use sliding window/two‑pointer (not needed).
+
+Don’t forget to include 0 when L=0.
+
+Don’t reset counters incorrectly (like you did with cnt_uni earlier).
+
+Don’t miss overflow handling.
+
+Don’t jump straight to optimized solution — walk interviewer through brute → observation → optimized.
+
+-----------------------------------------------------------------------------------------------------------------------
+
+q4. smallest unqiue subarray
+
+🧩 Problem Essence
+You’re given an array nums.
+
+Task: find the shortest subarray that contains all distinct elements of the entire array.
+
+Output: length of that subarray.
+
+Example:
+
+nums = [3,3,3] → distinct set = {3}.
+
+To cover all distinct elements, you need the whole array → answer = 3.
+
+nums = [1,2,2,3] → distinct set = {1,2,3}.
+
+Shortest subarray covering {1,2,3} is [2,3,1] or [1,2,3] → length = 3.
+
+🔎 What You Initially Thought
+You mixed it up with “smallest window with unique elements” (no duplicates).
+
+That gave wrong answers like 1 for [3,3,3].
+
+Mistake: You were checking uniqueness inside the window, instead of covering all distinct elements of the array.
+
+✅ Correct Way to Think
+Step 1: Find how many distinct elements are in the array (target = set.size()).
+
+Step 2: Use sliding window + hashmap:
+
+Expand right pointer until window contains all distinct elements.
+
+Then shrink from left to minimize window while still covering all distinct elements.
+
+Update answer with window length.
+
+Step 3: Return the minimum length found.
+
+⚡ Contest‑Style Code
+cpp
+class Solution {
+public:
+    int smallestUniqueSubarray(vector<int>& nums) {
+        int n = nums.size();
+        unordered_map<int,int> freq;
+        unordered_set<int> distinct(nums.begin(), nums.end());
+        int target = distinct.size();   // total unique elements
+
+        int l = 0, ans = n+1, cnt_uni = 0;
+        for(int r = 0; r < n; r++) {
+            freq[nums[r]]++;
+            if(freq[nums[r]] == 1) cnt_uni++; // new unique element added
+
+            while(cnt_uni == target) {
+                ans = min(ans, r - l + 1);
+                freq[nums[l]]--;
+                if(freq[nums[l]] == 0) cnt_uni--; // unique element removed
+                l++;
+            }
+        }
+        return (ans == n+1 ? -1 : ans);
+    }
+};
+📊 Dry Run Example
+nums = [1,2,2,3]
+
+Distinct = {1,2,3}, target=3.
+
+Expand until window covers all 3 → at right=3, window=[1,2,2,3].
+
+Shrink left → [2,2,3] still covers {2,3}, but missing 1 → stop.
+
+Minimum window length = 3. ✅
+
+🧩 Memory Hook
+👉 “Cover all distinct → shrink to minimum.”
+
+🚀 Interview Checklist
+Start with brute force: “Try all subarrays, check if they contain all distinct elements.”
+
+Spot inefficiency: “Too slow, O(n²).”
+
+Optimize: “Use sliding window + hashmap to maintain counts dynamically.”
+
+Dry run [3,3,3] and [1,2,2,3] to prove correctness.
+
+Mention complexity: O(n) time, O(n) space.
+
+❌ Mistakes to Avoid
+Don’t confuse with “no duplicates” problem.
+
+Don’t reset counters incorrectly (like cnt_uni=0).
+
+Don’t forget edge cases: all identical elements, single element array.
+
+Don’t jump straight to optimized solution — walk interviewer through brute → observation → optimized.
+---------------------------------------------------------------------------------------------------------------------
+
+q3. largest local values in a matrix 2
+
+🧩 Problem Essence
+You’re given a matrix (grid) of integers.
+
+For each non‑zero cell with value x:
+
+Look at all cells within x steps in both row and column directions.
+
+Skip the four “corner” cells exactly at (i±x, j±x).
+
+If none of those considered neighbors are greater than x, then this cell is a local maximum.
+
+Task: count how many such local maximum cells exist.
+
+🔎 What You Initially Thought
+You first tried to connect it with sliding window/hashmap (like in subarray problems).
+
+Got confused because here it’s 2D adjacency, not 1D ranges.
+
+Mistake: Overcomplicating with wrong patterns.
+
+Correct realization: It’s just matrix traversal + neighbor checks.
+
+✅ Correct Way to Think
+Brute force baseline:
+
+For each cell, check all neighbors within distance x.
+
+If any neighbor > x, mark false.
+
+Else count++.
+
+Observation:
+
+Only need to check within bounds.
+
+Skip corners explicitly.
+
+Complexity:
+
+Each cell checks at most (2x+1)² neighbors.
+
+With constraints (≤200×200), brute force is fine.
+
+⚡ Contest‑Style Code
+cpp
+class Solution {
+public:
+    int largestLocalValues(vector<vector<int>>& grid) {
+        int n = grid.size(), m = grid[0].size();
+        int ans = 0;
+
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < m; j++) {
+                int x = grid[i][j];
+                if(x == 0) continue;
+
+                bool isLocalMax = true;
+                for(int r = i - x; r <= i + x; r++) {
+                    for(int c = j - x; c <= j + x; c++) {
+                        if(r < 0 || r >= n || c < 0 || c >= m) continue;
+                        if(abs(r - i) == x && abs(c - j) == x) continue;
+                        if(grid[r][c] > x) {
+                            isLocalMax = false;
+                            break;
+                        }
+                    }
+                    if(!isLocalMax) break;
+                }
+                if(isLocalMax) ans++;
+            }
+        }
+        return ans;
+    }
+};
+📊 Dry Run Example
+Matrix:
+
+Code
+0 0 0
+0 2 0
+0 0 0
+Cell (1,1)=2 → neighbors within distance 2 are all 0 → no one bigger → count++.
+
+Others are 0 → skipped.
+👉 Answer = 1.
+
+🧩 Memory Hook
+👉 “Check neighbors within x, skip corners, count kings.”
+
+🚀 Interview Checklist
+Start with brute force idea: “Check each cell and its neighbors.”
+
+Explain why sliding window/hashmap isn’t needed: adjacency only.
+
+Show brute force solution.
+
+Mention complexity and constraints.
+
+Dry run one example to prove correctness.
+
+❌ Mistakes to Avoid
+Don’t confuse with 1D subarray problems.
+
+Don’t forget to skip corners.
+
+Don’t miss edge cases: all zeros, single cell, uniform matrix.
+
+Don’t jump straight to optimized solution — walk interviewer through brute → observation → final.
