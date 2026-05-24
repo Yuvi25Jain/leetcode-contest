@@ -1,0 +1,293 @@
+q1. Limit occurences in sorted array:
+
+📝 Problem in Simple Words
+We are given a sorted array and a limit k.
+We need to ensure that no element appears more than k times.
+Return the new array after limiting occurrences.
+
+🚀 My Initial Approach (Brute Force)
+Traverse the whole array.
+
+Count occurrences of each element.
+
+Stop when count > k, skip extra duplicates.
+
+Complexity: O(n).
+
+✅ Correct intuition.
+❌ Missed optimization: didn’t leverage the fact that the array is sorted (duplicates are consecutive).
+
+⚡ Optimal Approach
+Since the array is sorted, duplicates form blocks.
+We can use two/three pointers (start, low, mid) to process each block:
+
+cpp
+vector<int> limitOccurrences(vector<int>& nums, int k) {
+    vector<int> res;
+    int n = nums.size();
+    int start = 0;
+
+    while (start < n) {
+        int low = start;
+        int mid = start;
+
+        // move mid until value changes
+        while (mid < n && nums[mid] == nums[start]) {
+            mid++;
+        }
+
+        int freq = mid - low;          // block size
+        int allowed = min(freq, k);    // limit occurrences
+
+        for (int t = 0; t < allowed; t++) {
+            res.push_back(nums[start]);
+        }
+
+        start = mid; // jump to next distinct element
+    }
+    return res;
+}
+Time Complexity: O(n)
+
+Space Complexity: O(n) for result
+
+🔎 Where I Missed / Gaps to Improve
+Initially thought about binary search (lower_bound, upper_bound) but that’s better for count queries, not for reconstructing the limited array.
+
+Needed to highlight that sorted property = consecutive duplicates = block compression trick.
+
+Interview gap: must explain why brute force wastes time and why sorted property changes the game.
+
+🧠 Memory Hook
+Think: “Sorted → Blocks → Limit”
+
+Sorted array → duplicates are consecutive.
+
+Count block size → mid - low.
+
+Limit with min(freq, k).
+
+Quick formula: allowed = min(freq, k)
+
+🎯 Interview Tip
+When explaining:
+
+Start with brute force O(n).
+
+Then refine: “Since the array is sorted, duplicates form blocks. Using start/low/mid pointers, I can count each block and limit occurrences in one pass.”
+
+Bonus: Mention this is a classic block compression trick in arrays
+
+----------------------------------------------------------------------------------------------
+
+q2.. password strenght
+
+Problem in Simple Words
+We are given a password string.
+We need to calculate its strength based on distinct characters in each category:
+
+1 point for each distinct lowercase letter
+
+2 points for each distinct uppercase letter
+
+3 points for each distinct digit
+
+5 points for each distinct special character
+
+🚀 My Initial Approach
+Use a single set to eliminate duplicates.
+
+Then compare each character with its category and assign points.
+
+✅ Correct intuition: sets handle distinctness.
+❌ Gap: one set loses category distinction (e.g., 'a' vs 'A' score differently).
+👉 Needed separate sets per category.
+
+⚡ Optimal Approach
+Maintain four sets (or boolean arrays) for categories:
+
+Lowercase
+
+Uppercase
+
+Digits
+
+Special characters
+
+Traverse the string once, insert into the right set, then compute weighted sum.
+
+cpp
+int passwordStrength(string s) {
+    unordered_set<char> lower, upper, digit, special;
+
+    for (char c : s) {
+        if (islower(c)) lower.insert(c);
+        else if (isupper(c)) upper.insert(c);
+        else if (isdigit(c)) digit.insert(c);
+        else special.insert(c);
+    }
+
+    return lower.size() * 1 
+         + upper.size() * 2 
+         + digit.size() * 3 
+         + special.size() * 5;
+}
+Time Complexity: O(n)
+
+Space Complexity: O(1) (bounded by character set size)
+
+🔎 Where I Missed / Gaps to Improve
+Initially thought one set was enough.
+
+Missed that scoring depends on category separation.
+
+Interview gap: must explain why multiple sets (or boolean arrays) are needed.
+
+🧠 Memory Hook
+Think: “L‑U‑D‑S → 1‑2‑3‑5”
+
+L = Lowercase → 1
+
+U = Uppercase → 2
+
+D = Digit → 3
+
+S = Special → 5
+
+Quick formula: Strength = 1L + 2U + 3D + 5S
+
+🎯 Interview Tip
+When explaining:
+
+Start with brute force idea (one set).
+
+Then refine: “But since scoring depends on category, I need separate sets for lowercase, uppercase, digits, and specials. That way I can multiply by their weights.”
+
+Bonus: Mention trade‑off: unordered_set (flexible, clean) vs bool array (fast, memory‑predictable).
+------------------------------------------------------------------------------------------
+
+q3. minimum operation to sort a permutation 
+
+
+  Problem in Simple Words
+We are given a permutation of [0..n-1].
+Allowed operations:
+
+Rotate left by one (move first element to end).
+
+Reverse the entire array.
+
+We need the minimum number of operations to make the array sorted ascending. If impossible → return -1.
+
+🚀 My Initial Approach
+Try brute force: apply rotation repeatedly, check if sorted.
+
+If not sorted, try reverse + rotations.
+
+Return count if sorted.
+
+✅ Correct brute force intuition.
+❌ Gap: brute force wastes time.
+👉 Needed to realize only two valid targets exist: sorted ascending or reverse sorted.
+
+⚡ Optimal Approach
+Check ascending possibility:
+
+Find index of 0.
+
+Rotate until 0 is at front.
+
+Verify sorted.
+
+Count rotations.
+
+Check reverse possibility:
+
+Find index of n-1.
+
+Rotate until n-1 is at front.
+
+Verify reverse sorted.
+
+Count rotations + 1 (for reverse).
+
+Answer = min(valid rotations). If none valid → -1.
+
+💻 Contest‑Style C++ Code
+cpp
+class Solution {
+public:
+    int minOperations(vector<int>& nums) {
+        int n = nums.size();
+
+        auto checkSorted = [&](vector<int>& arr) {
+            for (int i = 1; i < n; i++) 
+                if (arr[i] < arr[i-1]) return false;
+            return true;
+        };
+
+        auto checkReverseSorted = [&](vector<int>& arr) {
+            for (int i = 1; i < n; i++) 
+                if (arr[i] > arr[i-1]) return false;
+            return true;
+        };
+
+        // Try rotations for sorted
+        int idx0 = find(nums.begin(), nums.end(), 0) - nums.begin();
+        vector<int> rotatedSorted(n);
+        for (int i = 0; i < n; i++) 
+            rotatedSorted[i] = nums[(i+idx0)%n];
+        if (checkSorted(rotatedSorted)) return idx0;
+
+        // Try rotations for reverse sorted
+        int idxN = find(nums.begin(), nums.end(), n-1) - nums.begin();
+        vector<int> rotatedRev(n);
+        for (int i = 0; i < n; i++) 
+            rotatedRev[i] = nums[(i+idxN)%n];
+        if (checkReverseSorted(rotatedRev)) return idxN + 1; // +1 for reverse
+
+        return -1;
+    }
+};
+🔎 Where I Missed / Gaps to Improve
+Initially thought brute force rotations were necessary.
+
+Missed that only two target forms matter: sorted ascending or reverse sorted.
+
+Interview gap: must explain why brute force is wasteful and why permutation property simplifies the problem.
+
+🧠 Memory Hook
+Think: “Rotation aligns, Reverse flips”
+
+Rotation → bring 0 or n-1 to front.
+
+Reverse → flips order.
+
+Formula: Ops = rotations (+1 if reverse needed).
+
+🎯 Interview Tip
+When explaining:
+
+Start with brute force idea.
+
+Then refine: “Since it’s a permutation, only two valid targets exist: sorted ascending or reverse sorted. So I only need to check rotations aligning 0 or n-1.”
+
+Bonus: Mention complexity: O(n) (linear check after rotation).
+
+📝 English Grammar Note
+Original:
+“after reverse and rotation we will check if sorted if true then return the no of count.”
+
+Improved:
+“After performing reverse and rotation, we check if the array is sorted. If it is, we return the number of operations.”
+
+👉 Fixes:
+
+Add “performing” for clarity.
+
+Use “we check if the array is sorted” instead of “we will check if sorted”.
+
+Replace “no of count” with “number of operations”.
+
+  
+
