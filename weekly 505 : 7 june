@@ -1,0 +1,140 @@
+Sum of Compatible Numbers in Range I
+🔎 Problem Recap
+Given n and k, consider numbers in [n-1, n+k].
+
+A number x is compatible with n if:
+
+abs(x - n) <= k
+
+(x & n) == min(x, n)
+
+Task: Sum all compatible numbers.
+
+🧠 My Approach
+Initially wrote:
+
+cpp
+if ((x & n) != 0) continue;
+❌ Too restrictive — excluded valid numbers.
+
+Correct condition is:
+
+cpp
+if ((x & n) == min(x, n))
+✅ Ensures smaller number’s bits are contained in larger.
+
+⚠️ Gap Analysis
+Misinterpreted compatibility as “no overlapping bits.”
+
+True definition: “smaller number fully contained in larger’s bits.”
+
+Missed test case n=4, k=89 → got 2181 instead of 2184.
+
+🟢 Brute Force Code
+cpp
+class Solution {
+public:
+    int sumOfGoodIntegers(int n, int k) {
+        int ans = 0;
+        for (int x = n-1; x <= n+k; x++) {
+            if (abs(n - x) <= k && ((x & n) == min(x, n))) {
+                ans += x;
+            }
+        }
+        return ans;
+    }
+};
+🧠 Memory Hook
+Compatibility = containment.
+
+Don’t confuse with disjoint bits.
+
+If you see (x & n) == min(x, n), recall: smaller fits inside bigger’s bits.
+
+2️⃣ Valid Binary Strings With Cost Limit
+🔎 Problem Recap
+Build binary strings of length n.
+
+Cost = sum of indices (0‑based) where bit = 1.
+
+Count strings with cost ≤ k.
+
+🧠 My Approach
+First thought: brute force all 
+2
+𝑛
+.
+
+Confirmed: total strings = 
+2
+𝑛
+.
+
+Cost computed on 0‑based indices.
+
+Example: n=4, k=3 → 10 valid strings.
+
+⚠️ Gap Analysis
+Initially confused 1‑based vs 0‑based indexing.
+
+Correct: cost uses 0‑based index.
+
+Avoid off‑by‑one mistakes.
+
+🟢 Brute Force Code
+cpp
+class Solution {
+public:
+    int countValidStrings(int n, int k) {
+        int ans = 0;
+        int total = 1 << n; // 2^n
+        for (int mask = 0; mask < total; mask++) {
+            int cost = 0;
+            for (int i = 0; i < n; i++) {
+                if (mask & (1 << i)) cost += i;
+            }
+            if (cost <= k) ans++;
+        }
+        return ans;
+    }
+};
+🔵 Optimized DP Code
+cpp
+class Solution {
+public:
+    int countValidStrings(int n, int k) {
+        vector<int> dp(k+1, 0);
+        dp[0] = 1; // empty set
+
+        for (int i = 0; i < n; i++) {
+            for (int c = k; c >= i; c--) {
+                dp[c] += dp[c - i];
+            }
+        }
+
+        int ans = 0;
+        for (int c = 0; c <= k; c++) ans += dp[c];
+        return ans;
+    }
+};
+🧠 Memory Hook
+Brute force → try all masks.
+
+Optimized DP → subset sum counting.
+
+Trick: “at most k” → DP table.
+
+If you see “valid binary strings with cost limit,” recall: subset sum of indices problem.
+
+⭐ Rating My Progress
+Analysis skill: Good at spotting keywords (“at least / at most” → DP, “compatibility” → bitwise).
+
+Gap: Misread compatibility definition, indexing confusion.
+
+Fix: Always re‑check problem statement for exact definitions.
+
+Future Recall:
+
+Compatibility → (x & n) == min(x, n)
+
+Valid strings → subset sum DP, cost = 0‑based indices.
