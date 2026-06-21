@@ -1,0 +1,81 @@
+
+
+# 🚀 Contest Revision Notes
+
+## 1. Maximum Manhattan Distance With Underscores
+- **Your Approach:** Count `dx, dy`; confused about `k`.  
+- **Lagging:** Didn’t realize `_` always adds +1.  
+- **Correct:** `abs(dx) + abs(dy) + k`.  
+- **Hook:** *“Underscore = booster.”*
+
+### Dry Run
+| Moves   | dx | dy | k | Result |
+|---------|----|----|---|--------|
+| "U"     | 0  | 1  | 0 | 1      |
+| "L_D_"  | -1 | -1 | 2 | 4      |
+
+---
+
+## 2. Valid Subarrays With Matching Sum Digits
+- **Your Approach:** Sliding window intuition.  
+- **Lagging:** Tried greedy shrink; digit condition not monotonic.  
+- **Correct:** Prefix sums → O(1) sum, O(n²) subarrays.  
+- **Hook:** *“Prefix sum + digit check.”*
+
+### Dry Run
+`nums=[1,100,1], x=1`
+| Subarray | Sum | First | Last | Valid? |
+|----------|-----|-------|------|--------|
+| [1]      | 1   | 1     | 1    | ✅     |
+| [1,100]  | 101 | 1     | 1    | ✅     |
+| [100,1]  | 101 | 1     | 1    | ✅     |
+| [1]      | 1   | 1     | 1    | ✅     |
+
+---
+
+## 3. Shortest Path With ≤ K Consecutive Identical Characters
+- **Your Approach:** Recognized graph shortest path.  
+- **Lagging:** Missed extra constraint.  
+- **Correct:** Dijkstra with state `(node, last_char, count)`.  
+- **Hook:** *“Expand state with char+count.”*
+
+### Dry Run (Example)
+Graph: 0→1→2, labels="aab", k=1  
+| State             | Dist | Valid? |
+|-------------------|------|--------|
+| (0,'a',1)         | 0    | ✅     |
+| (1,'a',2)         | 1    | ❌ (cnt>k) |
+| (1,'a',1) via alt | 1    | ✅     |
+| (2,'b',1)         | 2    | ✅     |
+
+---
+
+## 4. Maximum Total Value (Knapsack)
+- **Your Approach:** Thought greedy.  
+- **Lagging:** Missed 0/1 knapsack DP.  
+- **Correct:** 1D DP, reverse loop.  
+- **Hook:** *“Pick/skip, reverse loop = 0/1.”*
+
+### Dry Run
+`value=[6,10,12], decay=[1,2,3], m=5`
+| Budget | dp after item1 | dp after item2 | dp after item3 |
+|--------|----------------|----------------|----------------|
+| 1      | 6              | 6              | 6              |
+| 2      | 6              | 10             | 10             |
+| 3      | 6              | 16             | 16             |
+| 4      | 6              | 16             | 18             |
+| 5      | 6              | 16             | 22             |
+
+---
+
+## 🧠 Quick Recall Summary
+- **Underscore booster:** +1 per `_`.  
+- **Digits check:** Prefix sum, O(n²).  
+- **Graph constraint:** Dijkstra with `(node,char,count)`.  
+- **Knapsack:** Reverse loop DP.
+
+---
+
+👉 This is now **ready to paste into GitHub** as your revision log. Each problem has: your approach, where you lagged, corrected approach, memory hook, and a dry run table for instant recall.  
+
+Would you like me to also add **C++ function signatures** under each section (like `int countvald(...)`, `int maximumTotalValue(...)`) so your repo has both notes + code templates together?
