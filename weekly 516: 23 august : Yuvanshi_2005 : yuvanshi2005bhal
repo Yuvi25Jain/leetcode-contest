@@ -1,0 +1,59 @@
+q1. check ASCII palindrome
+
+given with string . (input) , output : true or false if palindrome
+
+approach : convert character of that string into 8 bit binary representation. check that concatenates ascii string is palindrome or not ( 2 pointer , on reversal same then true else false if b[i] != b[j] return false then increment i and decrement j pointer)
+
+//helper function : which convert letters into 8 bit binary represenation
+    string toBin(char c){
+        bitset<8>b((int)c);
+        return b.to_string();
+    }
+
+
+    bool isPalindromic(string s) {
+        string binStr = "";
+        for(char ch :s){
+            binStr += toBin(ch);
+        }
+        int i = 0 , j = binStr.size()-1;
+        while(i<j){
+            if(binStr[i] != binStr[j]) return false;
+            i++;
+            j--;
+        }
+        return true;
+        
+    }
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+q2. find all number disappeared in an array
+
+class Solution {
+public:
+    vector<vector<int>> findDisappearedNumbers(vector<int>& nums, int lower, int upper) {
+
+        vector<vector<int>>res;
+        vector<int>a;
+        nums.push_back(upper+1);
+       
+     
+
+        for(int x : nums){
+            if(x>= lower && x<=upper){
+                a.push_back(x);
+                
+            }
+        }
+         sort(a.begin(), a.end());
+         a.push_back(upper+1);
+        int prev = lower-1;
+        for(int x: a){
+            if(x>prev+1){
+                res.push_back({prev+1,x-1});
+                
+            }
+            prev = x;
+        }
+        return res;
+    }
+};
