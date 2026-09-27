@@ -1,0 +1,495 @@
+📌 Q1 Summary Notes (Interview + Contest Perspective)
+
+Think of this as your post-problem reflection sheet.
+
+1. What was good in your thinking?
+✅ You understood the question correctly
+
+You identified:
+
+We need to repeatedly perform an operation.
+Find distinct elements.
+Add them in ascending order.
+Remove one occurrence of each distinct element.
+Repeat until array becomes empty.
+
+That is the core requirement of the problem.
+
+Verdict: Strong understanding.
+
+✅ You identified HashSet naturally
+
+You said:
+
+how ? we can use hashset which work on unique values
+
+This is good.
+
+It shows when you hear the word distinct, your brain immediately thinks:
+
+distinct → set/hashset
+
+
+This association is important in interviews.
+
+✅ You thought of simulation
+
+Your brute force was essentially:
+
+while(nums not empty)
+    find distinct elements
+    append to answer
+    remove one occurrence
+
+
+This is exactly how many people would start.
+
+A correct brute force is always better than no solution.
+
+2. Where your thinking was slightly off?
+❌ Thinking about Slow/Fast Pointer
+
+You said:
+
+my instinct says 10% slow fast pointer
+
+This was unnecessary.
+
+Lesson:
+
+Before searching for patterns ask:
+
+What information matters here?
+
+
+In this problem:
+
+positions don't matter
+subarrays don't matter
+indices don't matter
+
+Only frequencies matter.
+
+Therefore:
+
+frequency map > pointers
+
+❌ Physically deleting elements
+
+You suggested:
+
+find distinct
+delete occurrence
+repeat
+
+
+This works.
+
+But physically deleting from vector is expensive.
+
+A stronger candidate asks:
+
+Do I really need to modify the array?
+
+
+The answer was:
+
+No.
+
+
+Only frequencies matter.
+
+This observation leads to optimization.
+
+3. The Biggest Observation You Missed
+
+You were focused on:
+
+array state
+
+
+instead of:
+
+frequency state
+
+
+Example:
+
+[3,1,3,2,1,3]
+
+
+Frequency:
+
+1 -> 2
+2 -> 1
+3 -> 3
+
+
+Now imagine layers:
+
+Layer 1:
+
+1 2 3
+
+
+Layer 2:
+
+1 3
+
+
+Layer 3:
+
+3
+
+
+Answer:
+
+1 2 3 1 3 3
+
+
+Notice:
+
+We never used the original positions.
+
+This was the key insight.
+
+4. What You Should Have Mentioned In An Interview
+
+Your explanation was:
+
+use hashset, find distinct, delete occurrence
+
+A stronger explanation would be:
+
+Since ordering inside nums is irrelevant and only distinct values currently present matter, I can model the problem using frequencies instead of repeatedly modifying the array.
+
+This one sentence tells the interviewer:
+
+I understand what information is important.
+
+
+Huge difference.
+
+5. Communication Review
+Your version
+
+we create ans use hashset traverse again remove distinct elements
+
+Understandable ✅
+
+Professional ❌
+
+Better version
+
+My initial approach is to simulate the process. In every iteration I collect all distinct elements using a set, append them in sorted order to the answer array, and remove one occurrence of each distinct value. I repeat this until the array becomes empty.
+
+Much cleaner.
+
+6. Pattern Recognition Learned
+
+This problem is NOT:
+
+❌ Two Pointer
+
+❌ Sliding Window
+
+❌ Binary Search
+
+❌ DP
+
+❌ Greedy
+
+It is:
+
+✅ Frequency Counting
+
+✅ Simulation
+
+✅ Hashing
+
+7. Evolution of Solutions
+Level 1: Brute Force
+Find distinct
+Delete occurrence
+Repeat
+
+
+Time:
+
+O(n²)
+
+Level 2: Better
+Store frequencies in map
+Run rounds
+Decrease frequency
+
+
+No physical deletion.
+
+Level 3: Optimal
+
+Since:
+
+1 <= nums[i] <= 100
+
+
+Use frequency array:
+
+vector<int> freq(101);
+
+
+Complexity becomes essentially:
+
+O(n)
+
+
+for given constraints.
+
+8. Interviewer's Evaluation
+Problem Understanding
+
+9/10
+
+Very good.
+
+Data Structure Selection
+
+8/10
+
+HashSet for distinct values was correct.
+
+Optimization Instinct
+
+5/10
+
+You were still tied to modifying the array physically.
+
+Pattern Recognition
+
+6/10
+
+Tried to connect it to two pointers when frequencies were the real focus.
+
+Communication
+
+7/10
+
+Idea was understandable but not structured.
+
+Overall
+
+7.5/10
+
+For a contest Easy problem, this is a solid performance.
+
+9. What To Do If You See A Similar Question Again
+
+Whenever you see:
+
+distinct
+frequency
+repeated removals
+repeated operations
+elements are processed in rounds
+
+
+Ask these questions in order:
+
+Question 1
+Do positions matter?
+
+
+If No →
+
+Think frequency map.
+
+Question 2
+Do I need to physically remove elements?
+
+
+If No →
+
+Use counting.
+
+Question 3
+Can the entire array be represented as frequencies?
+
+
+If Yes →
+
+Avoid simulation on the real array.
+
+Question 4
+Are values bounded?
+
+
+If Yes →
+
+Use frequency array instead of map.
+
+Final Learning From Q1
+
+✅ Correctly understood the operation.
+
+✅ Correctly identified need for distinct elements.
+
+✅ Correctly thought of HashSet.
+
+✅ Developed a valid brute force.
+
+❌ Tried to relate it to pointers.
+
+❌ Missed the fact that positions are irrelevant.
+
+❌ Missed the frequency-based representation.
+
+❌ Missed the optimization of avoiding physical deletions.
+
+One-line takeaway:
+
+Whenever a problem repeatedly removes elements based only on their values (not positions), stop thinking about the array itself and start thinking about frequencies. 🚀
+
+ 
+brute force: Time Complexity: O(n²) , Space Complexity: O(n)
+
+class Solution {
+public:
+    vector<int> rearrangeArray(vector<int>& nums) {
+        vector<int> ans;
+
+        while (!nums.empty()) {
+            set<int> distinct;
+
+            // Find all distinct elements
+            for (int x : nums) {
+                distinct.insert(x);
+            }
+
+            // Append in ascending order
+            for (int x : distinct) {
+                ans.push_back(x);
+            }
+
+            // Remove one occurrence of each distinct element
+            vector<int> next;
+            unordered_set<int> removed;
+
+            for (int x : nums) {
+                if (removed.find(x) == removed.end()) {
+                    removed.insert(x);   // remove first occurrence
+                } else {
+                    next.push_back(x);
+                }
+            }
+
+            nums = next;
+        }
+
+        return ans;
+    }
+};
+
+2️⃣ Better Approach (Frequency Map)
+
+Key Observation: Don't physically delete elements. Just maintain frequencies.
+
+class Solution {
+public:
+    vector<int> rearrangeArray(vector<int>& nums) {
+        map<int, int> freq;
+
+        for (int x : nums) {
+            freq[x]++;
+        }
+
+        vector<int> ans;
+
+        while (true) {
+            bool found = false;
+
+            for (auto& [num, count] : freq) {
+                if (count > 0) {
+                    ans.push_back(num);
+                    count--;
+                    found = true;
+                }
+            }
+
+            if (!found) break;
+        }
+
+        return ans;
+    }
+};
+
+Time Complexity: O(k × maxFreq) (k = distinct values) ,Space Complexity: O(k)
+
+
+3️⃣ Optimized Approach (Contest Solution)
+
+Observation: Constraints say:
+
+C++
+1 <= nums[i] <= 100
+Show more lines
+
+Use a frequency array instead of a map.
+
+C++
+class Solution {
+public:
+vector<int> rearrangeArray(vector<int>& nums) {
+vector<int> freq(101, 0);
+ 
+for (int x : nums) {
+freq[x]++;
+}
+ 
+vector<int> ans;
+ 
+while (true) {
+bool added = false;
+ 
+for (int val = 1; val <= 100; val++) {
+if (freq[val] > 0) {
+ans.push_back(val);
+freq[val]--;
+added = true;
+}
+}
+ 
+if (!added) break;
+}
+ 
+return ans;
+}
+};
+Show more lines
+
+Time Complexity: O(n + 100 × 100)
+
+Since 100 is constant:
+
+C++
+O(n)
+
+
+Space Complexity: O(1)
+
+Interview Takeaway
+
+When you see:
+
+Distinct elements
+Repeated removals
+Order/indices don't matter
+Values matter more than positions
+
+Ask yourself:
+
+Plain Text
+Can I represent the entire array using frequencies?
+Show more lines
+
+If the answer is Yes, avoid physically modifying the array. That's the main lesson from Q1.
+
